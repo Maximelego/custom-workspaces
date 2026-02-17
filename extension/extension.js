@@ -3,6 +3,7 @@ import Gio from 'gi://Gio';
 
 let _timeouts = [];
 let _windowCreatedSignalId = null;
+let _bootstrapped = false;
 
 function logInfo(msg) {
   log(`[CustomWorkspaces] ${msg}`);
@@ -56,9 +57,15 @@ function spawn(cmd) {
 
 function setWorkspaceCount(count) {
   try {
-    const settings = new Gio.Settings({ schema_id: 'org.gnome.desktop.wm.preferences' });
-    settings.set_uint('num-workspaces', count);
-    logInfo(`set num-workspaces = ${count}`);
+    // Désactive les workspaces dynamiques
+    const mutter = new Gio.Settings({ schema_id: 'org.gnome.mutter' });
+    mutter.set_boolean('dynamic-workspaces', false);
+
+    // Définit un nombre fixe de workspaces
+    const wm = new Gio.Settings({ schema_id: 'org.gnome.desktop.wm.preferences' });
+    wm.set_uint('num-workspaces', count);
+
+    logInfo(`set static workspaces = ${count}`);
   } catch (e) {
     logInfo(`setWorkspaceCount failed: ${e}`);
   }
@@ -84,7 +91,6 @@ function moveWindowToWorkspace(win, index) {
 }
 
 function getWindowAppId(win) {
-  // Wayland: app.get_id() (souvent "*.desktop"), X11: wm_class
   try {
     const app = win.get_app?.();
     if (app) {
@@ -210,7 +216,6 @@ function enableDynamicRules(config) {
   if (!rules.length) return;
 
   _windowCreatedSignalId = global.display.connect('window-created', (_display, win) => {
-    // Laisse le temps au titre/appId d’arriver
     schedule(250, () => {
       for (const rule of rules) {
         if (matchesRule(win, rule)) {
@@ -235,6 +240,11 @@ export default class CustomWorkspacesExtension {
   enable() {
     logInfo('Enabling...');
 
+    if (_bootstrapped) {
+      logInfo('Already bootstrapped, skipping.');
+      return;
+    }
+
     const config = loadConfig();
     if (!config) {
       logInfo('No config; nothing to do.');
@@ -244,6 +254,8 @@ export default class CustomWorkspacesExtension {
     enableDynamicRules(config);
     bootstrap(config);
 
+    _bootstrapped = true;
+
     logInfo('Enabled.');
   }
 
@@ -251,6 +263,5 @@ export default class CustomWorkspacesExtension {
     logInfo('Disabling...');
     disableDynamicRules();
     clearSchedules();
-    logInfo('Disabled.');
   }
 }
