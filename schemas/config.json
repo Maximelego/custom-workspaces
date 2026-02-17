@@ -1,0 +1,72 @@
+{
+  "workspaceCount": 6,
+  "startupDelayMs": 7000,
+  "stepDelayMs": 900,
+  "focusWorkspaceIndexAfter": 0,
+
+  "workspaces": [
+    {
+      "index": 0,
+      "name": "Backend",
+      "commands": [
+        "code --new-window ~/workspaces/owaka-backend.code-workspace",
+        "flatpak run rest.insomnia.Insomnia",
+        "github-desktop"
+      ]
+    },
+    {
+      "index": 1,
+      "name": "Database",
+      "commands": [
+        "code --new-window ~/workspaces/owaka-database.code-workspace",
+        "docker-desktop"
+      ]
+    },
+    {
+      "index": 2,
+      "name": "Frontend Dashboard",
+      "commands": [
+        "code --new-window ~/workspaces/owaka-frontend-dashboard.code-workspace",
+        "firefox --new-window http://localhost:5173"
+      ]
+    },
+    {
+      "index": 3,
+      "name": "Frontend Live",
+      "commands": [
+        "code --new-window ~/workspaces/owaka-frontend-live.code-workspace",
+        "gnome-terminal",
+        "firefox --new-window http://localhost:8080/live"
+      ]
+    },
+    {
+      "index": 4,
+      "name": "Documentation",
+      "commands": [
+        "code --new-window ~/workspaces/owaka-docs.code-workspace",
+        "flatpak run md.obsidian.Obsidian"
+      ]
+    },
+    {
+      "index": 5,
+      "name": "Communication",
+      "commands": [
+        "slack",
+        "flatpak run net.thunderbird.Thunderbird",
+        "firefox --new-window https://app.slack.com"
+      ]
+    }
+  ],
+
+  "dynamicRulesEnabled": true,
+  "dynamicRules": [
+    { "workspaceIndex": 5, "match": { "appId": "slack" } },
+    { "workspaceIndex": 5, "match": { "appId": "net.thunderbird.Thunderbird" } },
+    { "workspaceIndex": 0, "match": { "appId": "rest.insomnia.Insomnia" } },
+    { "workspaceIndex": 4, "match": { "appId": "md.obsidian.Obsidian" } },
+    { "workspaceIndex": 1, "match": { "appId": "docker-desktop" } },
+
+    { "workspaceIndex": 2, "match": { "appId": "firefox", "titleRegex": "localhost:5173" } },
+    { "workspaceIndex": 3, "match": { "appId": "firefox", "titleRegex": "localhost:8080" } }
+  ]
+}
